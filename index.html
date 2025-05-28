@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>11th Monthsary Gift</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #181818 60%, #ffb6c1 100%);
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #flower-canvas {
+      display: block;
+      background: transparent;
+      border-radius: 20px;
+      box-shadow: 0 0 40px #e91e6344;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+    }
+    #envelope {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(1.6);
+      width: 420px;
+      height: 260px;
+      opacity: 0;
+      transition: opacity 2.2s;
+      z-index: 10;
+      pointer-events: none;
+      display: none;
+    }
+    #envelope.open .flap {
+      transform: rotateX(180deg);
+      transition: transform 2.2s;
+    }
+    #envelope .flap {
+      width: 420px;
+      height: 130px;
+      background: #fff;
+      border: 3px solid #e91e63;
+      border-bottom: none;
+      border-radius: 18px 18px 0 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: bottom center;
+      transition: transform 2.2s;
+      z-index: 2;
+      box-shadow: 0 8px 24px #0008;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    #envelope .seal {
+      position: absolute;
+      left: 50%;
+      top: 110px;
+      transform: translate(-50%, 0);
+      width: 48px;
+      height: 48px;
+      background: #e91e63;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      box-shadow: 0 2px 8px #e91e6388;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #fff;
+      z-index: 3;
+    }
+    #envelope .body {
+      width: 420px;
+      height: 130px;
+      background: #fff;
+      border: 3px solid #e91e63;
+      border-top: none;
+      border-radius: 0 0 18px 18px;
+      position: absolute;
+      top: 130px;
+      left: 0;
+      z-index: 1;
+      box-shadow: 0 8px 24px #0008;
+    }
+    #letter {
+      position: absolute;
+      left: 30px;
+      top: 110px;
+      width: 360px;
+      height: 0; /* closed state */
+      background: #fff8fa;
+      border: 2px solid #e91e63;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px #e91e6333;
+      font-family: 'Segoe Script', cursive;
+      color: #e91e63;
+      font-size: 1.3rem;
+      padding: 24px 18px 10px 18px;
+      opacity: 0;
+      transition: top 2.2s, opacity 2.2s, height 2.2s;
+      z-index: 4;
+      text-align: center;
+      line-height: 1.5;
+      overflow: hidden;
+      background-clip: padding-box;
+    }
+    #envelope.open #letter {
+      top: 40px;
+      opacity: 1;
+      height: 180px;
+      transition: top 2.2s, opacity 2.2s, height 2.2s;
+    }
+    .love-message {
+      position: absolute;
+      font-family: 'Segoe Script', cursive;
+      color: #111;
+      font-size: 2.1rem;
+      opacity: 0;
+      pointer-events: none;
+      animation: poplove 2.2s forwards;
+      text-shadow: 0 0 10px #fff, 0 0 20px #e91e63;
+      z-index: 100;
+      font-weight: bold;
+    }
+    @keyframes poplove {
+      0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+      60% { transform: scale(1.2) rotate(8deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .kiss {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0.5);
+      font-size: 12rem;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 200;
+      animation: kisspop 2.2s forwards;
+      color: #e91e63;
+      text-shadow: 0 0 40px #e91e63, 0 0 80px #fff, 0 0 10px #000;
+      font-family: 'Segoe UI Emoji', 'Segoe UI Symbol', 'Arial', sans-serif;
+    }
+    @keyframes kisspop {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+      60% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="flower-canvas" width="900" height="600"></canvas>
+  <div id="envelope">
+    <div class="flap"></div>
+    <div class="seal">❤️</div>
+    <div class="body"></div>
+    <div id="letter">
+      Happy 11th monthsary ma.<br>
+      As always I am grateful and lucky to have you.<br>
+      You mean a lot to me ma!<br>
+      Thanks for being you. I love you so much!
+    </div>
+  </div>
+  <!-- Love music (replace src with your own if you want) -->
+  <audio id="love-music" src="https://cdn.pixabay.com/audio/2022/10/16/audio_12b5b6c3b2.mp3" preload="auto"></audio>
+  <script>
+    // Play music on first user interaction (for autoplay policy)
+    const music = document.getElementById('love-music');
+    document.body.addEventListener('click', function playMusicOnce() {
+      music.play();
+      document.body.removeEventListener('click', playMusicOnce);
+    });
+
+    const canvas = document.getElementById('flower-canvas');
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // --- Realistic flower pop-up (mix of roses and tulips, more flowers, closes immediately) ---
+    function drawRose(x, y, scale = 1, alpha = 1) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+      ctx.globalAlpha = alpha;
+      for (let p = 0; p < 7; p++) {
+        ctx.save();
+        ctx.rotate((Math.PI * 2 / 7) * p);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(10, -10, 30, -40, 0, -50);
+        ctx.bezierCurveTo(-30, -40, -10, -10, 0, 0);
+        ctx.closePath();
+        ctx.fillStyle = "#e91e63";
+        ctx.shadowColor = "#ffb6c1";
+        ctx.shadowBlur = 12;
+        ctx.fill();
+        ctx.restore();
+      }
+      for (let p = 0; p < 5; p++) {
+        ctx.save();
+        ctx.rotate((Math.PI * 2 / 5) * p + 0.3);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(6, -6, 18, -22, 0, -28);
+        ctx.bezierCurveTo(-18, -22, -6, -6, 0, 0);
+        ctx.closePath();
+        ctx.fillStyle = "#c2185b";
+        ctx.shadowColor = "#e57373";
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.restore();
+      }
+      ctx.beginPath();
+      ctx.arc(0, 0, 10, 0, Math.PI * 2);
+      ctx.fillStyle = "#ad1457";
+      ctx.shadowColor = "#fff";
+      ctx.shadowBlur = 6;
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawTulip(x, y, scale = 1, alpha = 1) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+      ctx.globalAlpha = alpha;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(-18, -40, -25, -80, 0, -70);
+      ctx.bezierCurveTo(25, -80, 18, -40, 0, 0);
+      ctx.closePath();
+      ctx.fillStyle = "#ffd700";
+      ctx.shadowColor = "#fffacd";
+      ctx.shadowBlur = 18;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(-10, -30, -18, -60, -5, -55);
+      ctx.bezierCurveTo(-2, -60, 0, -30, 0, 0);
+      ctx.closePath();
+      ctx.fillStyle = "#ffecb3";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(10, -30, 18, -60, 5, -55);
+      ctx.bezierCurveTo(2, -60, 0, -30, 0, 0);
+      ctx.closePath();
+      ctx.fillStyle = "#ffecb3";
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawStem(x, y, length, angle) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(5, length/3, -5, 2*length/3, 0, length);
+      ctx.strokeStyle = "#388e3c";
+      ctx.lineWidth = 6;
+      ctx.shadowColor = "#66bb6a";
+      ctx.shadowBlur = 10;
+      ctx.stroke();
+      ctx.restore();
+    }
+    function drawBouquet(centerX, baseY, roses, tulips) {
+      roses.forEach(r => {
+        drawStem(r.x, baseY + 10, r.y - (baseY + 10), (r.x - centerX) / 120);
+      });
+      tulips.forEach(t => {
+        drawStem(t.x, baseY + 10, t.y - (baseY + 10), (t.x - centerX) / 120);
+      });
+      roses.forEach(r => drawRose(r.x, r.y, r.scale, r.alpha));
+      tulips.forEach(t => drawTulip(t.x, t.y, t.scale, t.alpha));
+      ctx.save();
+      ctx.translate(centerX, baseY + 60);
+      ctx.beginPath();
+      ctx.moveTo(-100, 0);
+      ctx.lineTo(-60, 100);
+      ctx.lineTo(60, 100);
+      ctx.lineTo(100, 0);
+      ctx.quadraticCurveTo(0, 80, -100, 0);
+      ctx.closePath();
+      ctx.fillStyle = "#fff0f6";
+      ctx.globalAlpha = 0.7;
+      ctx.shadowColor = "#e91e63";
+      ctx.shadowBlur = 18;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // --- Flower pop-up phase ---
+    const flowerPops = [];
+    for (let i = 0; i < 36; i++) {
+      const isRose = Math.random() > 0.4;
+      flowerPops.push({
+        type: isRose ? 'rose' : 'tulip',
+        x: Math.random() * (width - 80) + 40,
+        y: Math.random() * (height - 120) + 60,
+        scale: Math.random() * 0.5 + 0.8,
+        alpha: 0,
+        delay: 100 + i * 40
+      });
+    }
+
+    // --- Bouquet phase ---
+    const bouquetRoses = [];
+    const bouquetTulips = [];
+    const centerX = width / 2;
+    const baseY = height - 120;
+    for (let i = 0; i < 18; i++) {
+      bouquetRoses.push({
+        x: centerX + (Math.random() - 0.5) * 200,
+        y: baseY - Math.random() * 60 - 80,
+        scale: Math.random() * 0.3 + 1,
+        alpha: 0,
+        delay: 200 + i * 80
+      });
+    }
+    for (let i = 0; i < 10; i++) {
+      bouquetTulips.push({
+        x: centerX + (Math.random() - 0.5) * 180,
+        y: baseY - Math.random() * 60 - 80,
+        scale: Math.random() * 0.3 + 1,
+        alpha: 0,
+        delay: 400 + i * 90
+      });
+    }
+
+    // --- Animation states ---
+    let phase = 0; // 0: flower pop, 1: bouquet, 2: envelope, 3: letter closing, 4: love pop, 5: kiss
+    let startTime = null;
+    let bouquetStart = null;
+    let envelopeStart = null;
+    let envelopeOpened = false;
+    let letterCloseStarted = false;
+    let lovePopStarted = false;
+    let kissStarted = false;
+    let loveMessages = [];
+
+    function showLoveMessages() {
+      loveMessages = [];
+      for (let i = 0; i < 24; i++) {
+        const msg = document.createElement('div');
+        msg.className = 'love-message';
+        msg.innerHTML = 'I love you 💋';
+        msg.style.left = Math.random() * 80 + 10 + '%';
+        msg.style.top = Math.random() * 70 + 10 + '%';
+        msg.style.animationDelay = (Math.random() * 1.2) + 's';
+        document.body.appendChild(msg);
+        setTimeout(() => { msg.style.opacity = 1; }, 100);
+        loveMessages.push(msg);
+      }
+    }
+    function hideLoveMessages() {
+      loveMessages.forEach(msg => {
+        msg.style.transition = "opacity 1.2s";
+        msg.style.opacity = 0;
+        setTimeout(() => {
+          if (msg.parentNode) msg.parentNode.removeChild(msg);
+        }, 1200);
+      });
+      loveMessages = [];
+    }
+    function showKiss() {
+      const kiss = document.createElement('div');
+      kiss.className = 'kiss';
+      kiss.innerHTML = '💋';
+      document.body.appendChild(kiss);
+    }
+
+    function animate(time) {
+      if (!startTime) startTime = time;
+      ctx.clearRect(0, 0, width, height);
+
+      // PHASE 0: Flower pop-up (close immediately after all pop)
+      if (phase === 0) {
+        let allVisible = true;
+        flowerPops.forEach((flower, i) => {
+          if (time - startTime > flower.delay) {
+            flower.alpha = 1;
+            if (flower.type === 'rose') drawRose(flower.x, flower.y, flower.scale, flower.alpha);
+            else drawTulip(flower.x, flower.y, flower.scale, flower.alpha);
+          } else {
+            allVisible = false;
+          }
+        });
+        if (allVisible) {
+          setTimeout(() => {
+            // Immediately clear flowers and go to bouquet
+            ctx.clearRect(0, 0, width, height);
+            phase = 1;
+            bouquetStart = performance.now();
+          }, 400);
+        }
+      }
+
+      // PHASE 1: Bouquet (disappears when envelope appears)
+      if (phase === 1) {
+        let allBouquetVisible = true;
+        bouquetRoses.forEach((rose, i) => {
+          if (time - bouquetStart > rose.delay) {
+            if (rose.alpha < 1) rose.alpha += 0.09;
+            drawRose(rose.x, rose.y, rose.scale, rose.alpha);
+          } else {
+            allBouquetVisible = false;
+          }
+        });
+        bouquetTulips.forEach((tulip, i) => {
+          if (time - bouquetStart > tulip.delay) {
+            if (tulip.alpha < 1) tulip.alpha += 0.09;
+            drawTulip(tulip.x, tulip.y, tulip.scale, tulip.alpha);
+          } else {
+            allBouquetVisible = false;
+          }
+        });
+        drawBouquet(centerX, baseY, bouquetRoses, bouquetTulips);
+
+        if (allBouquetVisible) {
+          setTimeout(() => {
+            // Clear bouquet and show envelope
+            ctx.clearRect(0, 0, width, height);
+            phase = 2;
+            envelopeStart = performance.now();
+            const env = document.getElementById('envelope');
+            env.style.opacity = 1;
+            env.style.display = "block";
+          }, 1200);
+        }
+      }
+
+      // PHASE 2: Envelope (centered, bigger, realistic)
+      if (phase === 2) {
+        // No bouquet drawn
+        const env = document.getElementById('envelope');
+        env.style.opacity = 1;
+        if (!envelopeOpened && time - envelopeStart > 1800) {
+          env.classList.add('open');
+          envelopeOpened = true;
+        }
+        // Wait for a while, then close the letter and move to next phase
+        if (envelopeOpened && !letterCloseStarted && time - envelopeStart > 7000) {
+          env.classList.remove('open');
+          letterCloseStarted = true;
+          setTimeout(() => {
+            // Hide envelope after closing
+            env.style.opacity = 0;
+            setTimeout(() => {
+              env.style.display = "none";
+              phase = 4; // Go to love pop after envelope disappears
+            }, 2200);
+          }, 2200); // Wait for letter close animation
+        }
+      }
+
+      // PHASE 4: "I love you" pop up (scattered, black, then disappear)
+      if (phase === 4) {
+        if (!lovePopStarted) {
+          showLoveMessages();
+          lovePopStarted = true;
+          setTimeout(() => {
+            hideLoveMessages();
+            setTimeout(() => {
+              phase = 5;
+            }, 2200); // Wait for love messages to fade out before kiss
+          }, 3200);
+        }
+      }
+
+      // PHASE 5: Big kiss
+      if (phase === 5) {
+        if (!kissStarted) {
+          showKiss();
+          kissStarted = true;
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
